@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Papa from 'papaparse';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from '@/components/ui/dialog';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -146,12 +146,22 @@ export function ImportDialog({ open, onOpenChange, brandId }) {
 
 function FilePreview({ file }) {
   const [count, setCount] = useState(null);
-  // Parse just to count rows for the user's reassurance.
-  Papa.parse(file, {
-    header: true,
-    skipEmptyLines: true,
-    complete: (r) => setCount(r.data.length),
-  });
+
+  useEffect(() => {
+    let cancelled = false;
+    setCount(null);
+    Papa.parse(file, {
+      header: true,
+      skipEmptyLines: true,
+      complete: (r) => {
+        if (!cancelled) setCount(r.data.length);
+      },
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [file]);
+
   return (
     <div className="text-xs text-muted-foreground">
       {file.name}

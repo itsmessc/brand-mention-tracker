@@ -1,6 +1,5 @@
 import { cn } from '@/lib/utils';
 
-// Native <select> styled to match — keeps things simple and accessible.
 export function Select({ className, children, ...props }) {
   return (
     <select

@@ -1,3 +1,6 @@
+import os from 'node:os';
+import path from 'node:path';
+import fs from 'node:fs';
 import { Router } from 'express';
 import multer from 'multer';
 import { mentionController } from '../controllers/mention.controller.js';
@@ -9,12 +12,14 @@ import {
   mentionListQuerySchema,
 } from '../validators/mention.schema.js';
 
+const UPLOAD_DIR = path.join(os.tmpdir(), 'sanrove-uploads');
+fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
 const upload = multer({
-  storage: multer.memoryStorage(),
-  limits: { fileSize: 25 * 1024 * 1024 }, // 25 MB
+  dest: UPLOAD_DIR,
+  limits: { fileSize: 100 * 1024 * 1024 },
 });
 
-// Brand-scoped mention endpoints. Mounted under /api/brands/:brandId/mentions
 export const brandMentionRouter = Router({ mergeParams: true });
 
 brandMentionRouter.get(
@@ -38,7 +43,6 @@ brandMentionRouter.get(
   asyncHandler(mentionController.exportCsv)
 );
 
-// Flat mention endpoints for edit/delete. Mounted under /api/mentions
 export const mentionRouter = Router();
 
 mentionRouter.put(

@@ -3,14 +3,14 @@ import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, ExternalLink } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
-export function MentionsTable({ data, filters, onChange, onRowClick }) {
-  const { items = [], total = 0, page = 1, limit = 25 } = data || {};
-  const totalPages = Math.max(1, Math.ceil(total / limit));
+export function MentionsTable({ data, pagination, onRowClick }) {
+  const items = data?.items ?? [];
+  const total = data?.total ?? 0;
 
   return (
     <div className="space-y-3">
       <div className="text-xs text-muted-foreground">
-        {total.toLocaleString()} mentions · page {page} of {totalPages}
+        {pagination.summary} · {total.toLocaleString()} total
       </div>
       <div className="overflow-hidden rounded-lg border border-border bg-white">
         <table className="w-full text-sm">
@@ -82,16 +82,16 @@ export function MentionsTable({ data, filters, onChange, onRowClick }) {
         <Button
           variant="outline"
           size="sm"
-          disabled={page <= 1}
-          onClick={() => onChange({ page: page - 1 }, { resetPage: false })}
+          disabled={!pagination.canPrev}
+          onClick={pagination.onPrev}
         >
           <ChevronLeft className="h-4 w-4" /> Prev
         </Button>
         <Button
           variant="outline"
           size="sm"
-          disabled={page >= totalPages}
-          onClick={() => onChange({ page: page + 1 }, { resetPage: false })}
+          disabled={!pagination.canNext}
+          onClick={pagination.onNext}
         >
           Next <ChevronRight className="h-4 w-4" />
         </Button>

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
 import { Plus, Upload, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -13,10 +13,45 @@ import { useMentions } from '@/features/mentions/hooks';
 import { useMentionFilters } from '@/features/mentions/useMentionFilters';
 import { mentionsApi } from '@/features/mentions/api';
 
+const PAGE_SIZE = 25;
+
 export default function BrandMentionsPage() {
   const { brandId } = useParams();
   const { filters, setFilters, applyFilterObject } = useMentionFilters();
-  const { data, isFetching, error } = useMentions(brandId, filters);
+
+  const [cursorStack, setCursorStack] = useState([null]);
+  const [skipPage, setSkipPage] = useState(1);
+
+  const filtersKey = useMemo(() => JSON.stringify(filters), [filters]);
+  useEffect(() => {
+    setCursorStack([null]);
+    setSkipPage(1);
+  }, [filtersKey]);
+
+  const useText = !!filters.q;
+  const query = useText
+    ? { ...filters, page: skipPage, limit: PAGE_SIZE }
+    : { ...filters, cursor: cursorStack[cursorStack.length - 1] || undefined, limit: PAGE_SIZE };
+
+  const { data, isFetching, error } = useMentions(brandId, query);
+
+  const pagination = useText
+    ? {
+        summary: data
+          ? `page ${data.page} of ${Math.max(1, Math.ceil(data.total / PAGE_SIZE))}`
+          : '…',
+        canPrev: skipPage > 1,
+        canNext: data ? skipPage < Math.ceil(data.total / PAGE_SIZE) : false,
+        onPrev: () => setSkipPage((p) => Math.max(1, p - 1)),
+        onNext: () => setSkipPage((p) => p + 1),
+      }
+    : {
+        summary: `page ${cursorStack.length}`,
+        canPrev: cursorStack.length > 1,
+        canNext: !!data?.nextCursor,
+        onPrev: () => setCursorStack((s) => (s.length > 1 ? s.slice(0, -1) : s)),
+        onNext: () => data?.nextCursor && setCursorStack((s) => [...s, data.nextCursor]),
+      };
 
   const [creating, setCreating] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -57,12 +92,7 @@ export default function BrandMentionsPage() {
 
       {error && <div className="text-destructive">{error.message}</div>}
       <div className={isFetching ? 'opacity-60 transition-opacity' : ''}>
-        <MentionsTable
-          data={data}
-          filters={filters}
-          onChange={setFilters}
-          onRowClick={setSelected}
-        />
+        <MentionsTable data={data} pagination={pagination} onRowClick={setSelected} />
       </div>
 
       <NewMentionDialog open={creating} onOpenChange={setCreating} brandId={brandId} />

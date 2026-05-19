@@ -14,7 +14,7 @@ async function request(method, path, { body, params, isForm = false } = {}) {
   const res = await fetch(`${BASE}${path}${qs}`, init);
   if (!res.ok) {
     let payload = null;
-    try { payload = await res.json(); } catch { /* ignore */ }
+    try { payload = await res.json(); } catch { void 0; }
     const err = new Error(payload?.error || `Request failed: ${res.status}`);
     err.status = res.status;
     err.details = payload?.details;

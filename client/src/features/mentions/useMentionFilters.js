@@ -1,33 +1,29 @@
 import { useSearchParams } from 'react-router-dom';
 import { useMemo, useCallback } from 'react';
 
-const KEYS = ['source', 'sentiment', 'tag', 'from', 'to', 'q', 'page', 'limit'];
+const FILTER_KEYS = ['source', 'sentiment', 'tag', 'from', 'to', 'q'];
 
 export function useMentionFilters() {
   const [params, setParams] = useSearchParams();
 
   const filters = useMemo(() => {
     const out = {};
-    for (const k of KEYS) {
+    for (const k of FILTER_KEYS) {
       const v = params.get(k);
       if (v !== null && v !== '') out[k] = v;
     }
-    out.page = Number(out.page ?? 1);
-    out.limit = Number(out.limit ?? 25);
     return out;
   }, [params]);
 
   const setFilters = useCallback(
-    (patch, { resetPage = true } = {}) => {
+    (patch) => {
       setParams(
         (prev) => {
           const next = new URLSearchParams(prev);
           for (const [k, v] of Object.entries(patch)) {
+            if (!FILTER_KEYS.includes(k)) continue;
             if (v === undefined || v === null || v === '') next.delete(k);
             else next.set(k, String(v));
-          }
-          if (resetPage && Object.keys(patch).some((k) => k !== 'page')) {
-            next.delete('page');
           }
           return next;
         },
@@ -40,8 +36,8 @@ export function useMentionFilters() {
   const applyFilterObject = useCallback(
     (obj) => {
       const next = new URLSearchParams();
-      for (const k of KEYS) {
-        if (obj[k] !== undefined && obj[k] !== null && obj[k] !== '') {
+      for (const k of FILTER_KEYS) {
+        if (obj?.[k] !== undefined && obj?.[k] !== null && obj?.[k] !== '') {
           next.set(k, String(obj[k]));
         }
       }

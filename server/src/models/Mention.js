@@ -18,25 +18,21 @@ const mentionSchema = new mongoose.Schema(
   { timestamps: true }
 );
 
-// Composite indexes for list queries and facet filters.
-mentionSchema.index({ brand: 1, postedAt: -1 });
+mentionSchema.index({ brand: 1, postedAt: -1, _id: -1 });
 mentionSchema.index({ brand: 1, source: 1, postedAt: -1 });
 mentionSchema.index({ brand: 1, sentiment: 1, postedAt: -1 });
 mentionSchema.index({ brand: 1, tags: 1, postedAt: -1 });
 
-// Dedupe: url is globally unique when present.
 mentionSchema.index(
-  { url: 1 },
+  { brand: 1, url: 1 },
   { unique: true, partialFilterExpression: { url: { $type: 'string' } } }
 );
 
-// Dedupe fallback: (source, externalId) unique when externalId present.
 mentionSchema.index(
-  { source: 1, externalId: 1 },
+  { brand: 1, source: 1, externalId: 1 },
   { unique: true, partialFilterExpression: { externalId: { $type: 'string' } } }
 );
 
-// Full-text search on body.
 mentionSchema.index({ body: 'text' });
 
 export const Mention = mongoose.model('Mention', mentionSchema);

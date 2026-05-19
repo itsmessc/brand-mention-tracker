@@ -1,7 +1,9 @@
+import fs from 'node:fs/promises';
 import { mentionService } from '../services/mention.service.js';
 import { ingestService } from '../services/ingest.service.js';
 import { streamMentionsAsCsv } from '../lib/csv.js';
 import { ApiError } from '../lib/ApiError.js';
+import { mentionBulkSchema } from '../validators/mention.schema.js';
 
 export const mentionController = {
   async list(req, res) {
@@ -25,17 +27,30 @@ export const mentionController = {
   },
 
   async bulk(req, res) {
-    let rows;
     if (req.file) {
-      rows = ingestService.parseCsv(req.file.buffer);
-    } else if (Array.isArray(req.body)) {
-      rows = req.body;
-    } else if (Array.isArray(req.body?.items)) {
-      rows = req.body.items;
-    } else {
-      throw ApiError.badRequest('Provide a JSON array body or a multipart file field "file"');
+      try {
+        const result = await ingestService.ingestCsvFile(
+          req.params.brandId,
+          req.file.path
+        );
+        res.status(201).json(result);
+      } finally {
+        fs.unlink(req.file.path).catch(() => {});
+      }
+      return;
     }
-    const result = await ingestService.ingest(req.params.brandId, rows);
+
+    const rows = Array.isArray(req.body) ? req.body : req.body?.items;
+    if (!Array.isArray(rows)) {
+      throw ApiError.badRequest(
+        'Provide a JSON array body or a multipart file field "file"'
+      );
+    }
+    const parsed = mentionBulkSchema.safeParse(rows);
+    if (!parsed.success) {
+      throw ApiError.badRequest('Bulk payload failed validation', parsed.error.flatten());
+    }
+    const result = await ingestService.ingestRows(req.params.brandId, parsed.data);
     res.status(201).json(result);
   },
 

@@ -1,6 +1,8 @@
 import { z } from 'zod';
 import { SOURCES, SENTIMENTS } from '../models/Mention.js';
 
+export const MAX_BULK_ROWS = 10_000;
+
 const baseMention = z.object({
   source: z.enum(SOURCES),
   author: z.string().max(200).optional(),
@@ -25,7 +27,7 @@ export const mentionUpdateSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
-export const mentionBulkSchema = z.array(baseMention).min(1).max(10000);
+export const mentionBulkSchema = z.array(baseMention).min(1).max(MAX_BULK_ROWS);
 
 export const mentionListQuerySchema = z.object({
   source: z.enum(SOURCES).optional(),
@@ -34,6 +36,7 @@ export const mentionListQuerySchema = z.object({
   from: z.coerce.date().optional(),
   to: z.coerce.date().optional(),
   q: z.string().optional(),
-  page: z.coerce.number().int().min(1).default(1),
+  cursor: z.string().optional(),
+  page: z.coerce.number().int().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(200).default(25),
 });

@@ -21,6 +21,10 @@ export function errorHandler(err, req, res, _next) {
     return res.status(400).json({ error: 'Invalid id' });
   }
 
+  if (err?.name === 'MulterError') {
+    return res.status(400).json({ error: `Upload error: ${err.message}`, code: err.code });
+  }
+
   console.error('[error]', err);
   return res.status(500).json({ error: 'Internal server error' });
 }

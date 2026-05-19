@@ -75,6 +75,14 @@ async function main() {
   console.log(`[seed] wiping collections`);
   await Promise.all([Mention.deleteMany({}), Brand.deleteMany({}), SavedView.deleteMany({})]);
 
+  console.log(`[seed] syncing indexes`);
+  try {
+    await Mention.collection.dropIndexes();
+  } catch (err) {
+    if (err.codeName !== 'NamespaceNotFound') console.warn('[seed] dropIndexes warning:', err.message);
+  }
+  await Mention.syncIndexes();
+
   console.log(`[seed] creating ${BRANDS.length} brands`);
   const brands = await Brand.insertMany(BRANDS);
 
