@@ -33,6 +33,4 @@ mentionSchema.index(
   { unique: true, partialFilterExpression: { externalId: { $type: 'string' } } }
 );
 
-mentionSchema.index({ body: 'text' });
-
 export const Mention = mongoose.model('Mention', mentionSchema);

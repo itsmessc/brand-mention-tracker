@@ -20,38 +20,27 @@ export default function BrandMentionsPage() {
   const { filters, setFilters, applyFilterObject } = useMentionFilters();
 
   const [cursorStack, setCursorStack] = useState([null]);
-  const [skipPage, setSkipPage] = useState(1);
 
   const filtersKey = useMemo(() => JSON.stringify(filters), [filters]);
   useEffect(() => {
     setCursorStack([null]);
-    setSkipPage(1);
   }, [filtersKey]);
 
-  const useText = !!filters.q;
-  const query = useText
-    ? { ...filters, page: skipPage, limit: PAGE_SIZE }
-    : { ...filters, cursor: cursorStack[cursorStack.length - 1] || undefined, limit: PAGE_SIZE };
+  const query = {
+    ...filters,
+    cursor: cursorStack[cursorStack.length - 1] || undefined,
+    limit: PAGE_SIZE,
+  };
 
   const { data, isFetching, error } = useMentions(brandId, query);
 
-  const pagination = useText
-    ? {
-        summary: data
-          ? `page ${data.page} of ${Math.max(1, Math.ceil(data.total / PAGE_SIZE))}`
-          : '…',
-        canPrev: skipPage > 1,
-        canNext: data ? skipPage < Math.ceil(data.total / PAGE_SIZE) : false,
-        onPrev: () => setSkipPage((p) => Math.max(1, p - 1)),
-        onNext: () => setSkipPage((p) => p + 1),
-      }
-    : {
-        summary: `page ${cursorStack.length}`,
-        canPrev: cursorStack.length > 1,
-        canNext: !!data?.nextCursor,
-        onPrev: () => setCursorStack((s) => (s.length > 1 ? s.slice(0, -1) : s)),
-        onNext: () => data?.nextCursor && setCursorStack((s) => [...s, data.nextCursor]),
-      };
+  const pagination = {
+    summary: `page ${cursorStack.length}`,
+    canPrev: cursorStack.length > 1,
+    canNext: !!data?.nextCursor,
+    onPrev: () => setCursorStack((s) => (s.length > 1 ? s.slice(0, -1) : s)),
+    onNext: () => data?.nextCursor && setCursorStack((s) => [...s, data.nextCursor]),
+  };
 
   const [creating, setCreating] = useState(false);
   const [importing, setImporting] = useState(false);

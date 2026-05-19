@@ -179,27 +179,18 @@ Scoping dedupe by brand lets the same social/news post be tracked under more tha
 
 The mentions list and dashboard are designed to stay snappy as the dataset grows from hundreds to tens of thousands:
 
-- **Keyset pagination** on the mentions list — sort `{ postedAt: -1, _id: -1 }` and walk forward via an opaque cursor. No `skip`, no count-then-jump. The compound index `{ brand, postedAt, _id }` covers it. Text search (`q=`) falls back to skip/limit because relevance ranking can't be keyset-paginated; you can still page through results, but the cost is `O(skip)`.
+- **Keyset pagination** on the mentions list — sort `{ postedAt: -1, _id: -1 }` and walk forward via an opaque cursor. No `skip`, no count-then-jump. The compound index `{ brand, postedAt, _id }` covers it.
+- **Substring search** on `body` uses a case-insensitive regex (`$regex`/`$options: 'i'`). The user input is regex-escaped on the server. This was a deliberate trade — Mongo's `$text` index is whole-word only ("od" wouldn't match "odio"), and Atlas Search isn't available locally. The regex is unindexed but only runs over whatever the brand + filter compound indexes have already narrowed to, which stays cheap at this scale. For real-scale free-text search I'd reach for Atlas Search.
 - **Streaming CSV ingest** — uploads go to disk (multer `diskStorage`), `csv-parse` streams rows off the file, and the ingest service batch-inserts 500 rows at a time. Memory usage stays flat regardless of file size. There's a 100 MB upload cap and a 10,000-row cap per ingest call (configurable via `MAX_BULK_ROWS`).
 - Compound indexes on the brand-scoped query shapes: `{ brand, postedAt, _id }`, `{ brand, source, postedAt }`, `{ brand, sentiment, postedAt }`, `{ brand, tags, postedAt }`.
-- A text index on `body` powers the search box (Mongo `$text`).
 - The dashboard is a **single aggregation pipeline** with `$facet`, so all five panels share one Mongo round-trip.
 - CSV export streams rows through a Mongo cursor instead of buffering them in memory.
 
 ### Pagination request/response shapes
 
-Mentions list — keyset (default):
-
 ```
 GET /api/brands/:brandId/mentions?limit=25&cursor=<opaque>
-→ { items: [...], total: 14829, nextCursor: "...", mode: "keyset", limit: 25 }
-```
-
-Mentions list — skip fallback (only when `q=` is set):
-
-```
-GET /api/brands/:brandId/mentions?q=launch&limit=25&page=3
-→ { items: [...], total: 412, mode: "skip", page: 3, limit: 25 }
+→ { items: [...], total: 14829, nextCursor: "...", limit: 25 }
 ```
 
 The client tracks a stack of cursors for prev/next nav. Cursors are not in the URL — saved views capture filters only.
@@ -207,6 +198,5 @@ The client tracks a stack of cursors for prev/next nav. Cursors are not in the U
 ## Tradeoffs / what I'd do next
 
 - **Bulk ingest at scale:** today it's synchronous. A real system would push a job onto a queue and return a job id to poll.
-- **Text search ranking:** Mongo `$text` is fine for this size. For real ranking quality I'd reach for Atlas Search or an external index.
 - **No auth** by design (single-user per the brief).
 - **Sentiment** is stored, not computed — there's no NLP pipeline.
