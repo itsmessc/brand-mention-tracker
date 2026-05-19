@@ -34,8 +34,11 @@ export default function BrandMentionsPage() {
 
   const { data, isFetching, error } = useMentions(brandId, query);
 
+  const totalPages = data ? Math.max(1, Math.ceil(data.total / PAGE_SIZE)) : 1;
   const pagination = {
-    summary: `page ${cursorStack.length}`,
+    page: cursorStack.length,
+    totalPages,
+    total: data?.total ?? 0,
     canPrev: cursorStack.length > 1,
     canNext: !!data?.nextCursor,
     onPrev: () => setCursorStack((s) => (s.length > 1 ? s.slice(0, -1) : s)),

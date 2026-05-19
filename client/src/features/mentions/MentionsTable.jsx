@@ -5,13 +5,9 @@ import { formatDate } from '@/lib/utils';
 
 export function MentionsTable({ data, pagination, onRowClick }) {
   const items = data?.items ?? [];
-  const total = data?.total ?? 0;
 
   return (
     <div className="space-y-3">
-      <div className="text-xs text-muted-foreground">
-        {pagination.summary} · {total.toLocaleString()} total
-      </div>
       <div className="overflow-hidden rounded-lg border border-border bg-white">
         <table className="w-full text-sm">
           <thead className="bg-muted/60 text-left text-xs uppercase text-muted-foreground">
@@ -78,23 +74,28 @@ export function MentionsTable({ data, pagination, onRowClick }) {
           </tbody>
         </table>
       </div>
-      <div className="flex justify-end items-center gap-2">
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={!pagination.canPrev}
-          onClick={pagination.onPrev}
-        >
-          <ChevronLeft className="h-4 w-4" /> Prev
-        </Button>
-        <Button
-          variant="outline"
-          size="sm"
-          disabled={!pagination.canNext}
-          onClick={pagination.onNext}
-        >
-          Next <ChevronRight className="h-4 w-4" />
-        </Button>
+      <div className="flex justify-between items-center gap-2">
+        <div className="text-xs text-muted-foreground">
+          Page {pagination.page} of {pagination.totalPages.toLocaleString()} · {pagination.total.toLocaleString()} total
+        </div>
+        <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!pagination.canPrev}
+            onClick={pagination.onPrev}
+          >
+            <ChevronLeft className="h-4 w-4" /> Prev
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!pagination.canNext}
+            onClick={pagination.onNext}
+          >
+            Next <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
     </div>
   );
