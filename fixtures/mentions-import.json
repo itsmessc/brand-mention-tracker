@@ -1,0 +1,81 @@
+[
+  {
+    "source": "twitter",
+    "author": "json_tester_01",
+    "body": "Trying out the JSON import path - this should work without any URL.",
+    "externalId": "json-9101",
+    "postedAt": "2025-04-23T08:15:00Z",
+    "sentiment": "neutral",
+    "tags": ["test"]
+  },
+  {
+    "source": "reddit",
+    "author": "acme_enthusiast",
+    "body": "Honestly the best customer service experience I've had this year. Acme delivered.",
+    "url": "https://reddit.com/r/acme/comments/9102",
+    "externalId": "r9102",
+    "postedAt": "2025-04-24T11:00:00Z",
+    "sentiment": "positive",
+    "tags": ["praise", "support"]
+  },
+  {
+    "source": "news",
+    "author": "industry_watch",
+    "body": "Acme partners with European distributor in expansion push.",
+    "url": "https://example.com/news/acme-europe",
+    "externalId": "n9103",
+    "postedAt": "2025-04-25T09:30:00Z",
+    "sentiment": "positive",
+    "tags": ["press", "launch"]
+  },
+  {
+    "source": "instagram",
+    "author": "design_blog",
+    "body": "Unboxing the new Acme product line - photos in the carousel.",
+    "url": "https://instagram.com/p/9104",
+    "externalId": "i9104",
+    "postedAt": "2025-04-26T16:45:00Z",
+    "sentiment": "positive",
+    "tags": ["launch", "review"]
+  },
+  {
+    "source": "twitter",
+    "author": "skeptic_99",
+    "body": "Not sure if Acme is worth the price tag honestly. Will wait for reviews.",
+    "url": "https://twitter.com/skeptic_99/status/9105",
+    "externalId": "t9105",
+    "postedAt": "2025-04-27T14:00:00Z",
+    "sentiment": "neutral",
+    "tags": ["pricing", "question"]
+  },
+  {
+    "source": "reddit",
+    "author": "dupe_tester",
+    "body": "This URL matches a row in the CSV file - should be skipped as a duplicate on second import.",
+    "url": "https://reddit.com/r/acme/comments/9002",
+    "externalId": "r9002-dup",
+    "postedAt": "2025-04-28T10:00:00Z",
+    "sentiment": "negative",
+    "tags": ["complaint"]
+  },
+  {
+    "source": "news",
+    "author": "tech_review",
+    "body": "Hands-on with the latest Acme device: solid build, mediocre software.",
+    "url": "https://example.com/news/acme-handson",
+    "externalId": "n9107",
+    "postedAt": "2025-04-29T12:30:00Z",
+    "sentiment": "neutral",
+    "tags": ["press", "review"]
+  },
+  {
+    "source": "twitter",
+    "author": "broken_row",
+    "body": "",
+    "url": "https://twitter.com/broken_row/status/9108",
+    "externalId": "t9108",
+    "postedAt": "2025-04-30T08:00:00Z",
+    "sentiment": "neutral",
+    "tags": ["test"]
+  }
+]
