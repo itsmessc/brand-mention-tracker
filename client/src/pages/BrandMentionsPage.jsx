@@ -1,13 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useParams } from 'react-router-dom';
-import { Plus, Upload, Download } from 'lucide-react';
+import { Plus, Download } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { MentionFilters } from '@/features/mentions/MentionFilters';
 import { MentionsTable } from '@/features/mentions/MentionsTable';
 import { MentionDrawer } from '@/features/mentions/MentionDrawer';
 import { NewMentionDialog } from '@/features/mentions/NewMentionDialog';
-import { ImportDialog } from '@/features/mentions/ImportDialog';
 import { SavedViewsBar } from '@/features/savedViews/SavedViewsBar';
 import { useMentions } from '@/features/mentions/hooks';
 import { useMentionFilters } from '@/features/mentions/useMentionFilters';
@@ -46,7 +45,6 @@ export default function BrandMentionsPage() {
   };
 
   const [creating, setCreating] = useState(false);
-  const [importing, setImporting] = useState(false);
   const [selected, setSelected] = useState(null);
 
   function exportCsv() {
@@ -61,9 +59,6 @@ export default function BrandMentionsPage() {
         <div className="flex gap-2">
           <Button variant="outline" onClick={exportCsv}>
             <Download className="h-4 w-4" /> Export CSV
-          </Button>
-          <Button variant="outline" onClick={() => setImporting(true)}>
-            <Upload className="h-4 w-4" /> Import
           </Button>
           <Button onClick={() => setCreating(true)}>
             <Plus className="h-4 w-4" /> New mention
@@ -88,7 +83,6 @@ export default function BrandMentionsPage() {
       </div>
 
       <NewMentionDialog open={creating} onOpenChange={setCreating} brandId={brandId} />
-      <ImportDialog open={importing} onOpenChange={setImporting} brandId={brandId} />
       <MentionDrawer
         open={!!selected}
         onOpenChange={(o) => !o && setSelected(null)}

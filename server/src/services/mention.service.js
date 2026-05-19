@@ -7,6 +7,20 @@ function escapeRegex(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
+function endOfDayIfDateOnly(d) {
+  if (
+    d.getUTCHours() === 0 &&
+    d.getUTCMinutes() === 0 &&
+    d.getUTCSeconds() === 0 &&
+    d.getUTCMilliseconds() === 0
+  ) {
+    const out = new Date(d);
+    out.setUTCHours(23, 59, 59, 999);
+    return out;
+  }
+  return d;
+}
+
 function buildFilter(brandId, query) {
   const filter = { brand: brandId };
   if (query.source) filter.source = query.source;
@@ -15,7 +29,7 @@ function buildFilter(brandId, query) {
   if (query.from || query.to) {
     filter.postedAt = {};
     if (query.from) filter.postedAt.$gte = new Date(query.from);
-    if (query.to) filter.postedAt.$lte = new Date(query.to);
+    if (query.to) filter.postedAt.$lte = endOfDayIfDateOnly(new Date(query.to));
   }
   if (query.q && query.q.trim()) {
     filter.body = { $regex: escapeRegex(query.q.trim()), $options: 'i' };

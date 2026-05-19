@@ -1,11 +1,15 @@
+import { useState } from 'react';
 import { NavLink, Outlet, useParams, Link } from 'react-router-dom';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, Upload } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { ImportDialog } from '@/features/mentions/ImportDialog';
 import { useBrand } from '@/features/brands/hooks';
 import { cn } from '@/lib/utils';
 
 export default function BrandLayout() {
   const { brandId } = useParams();
   const { data: brand, isLoading } = useBrand(brandId);
+  const [importing, setImporting] = useState(false);
 
   return (
     <div>
@@ -15,11 +19,16 @@ export default function BrandLayout() {
         </Link>
       </div>
 
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold">{isLoading ? '…' : brand?.name}</h1>
-        {brand?.keywords?.length > 0 && (
-          <p className="text-sm text-muted-foreground">Keywords: {brand.keywords.join(', ')}</p>
-        )}
+      <div className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold">{isLoading ? '…' : brand?.name}</h1>
+          {brand?.keywords?.length > 0 && (
+            <p className="text-sm text-muted-foreground">Keywords: {brand.keywords.join(', ')}</p>
+          )}
+        </div>
+        <Button variant="outline" onClick={() => setImporting(true)}>
+          <Upload className="h-4 w-4" /> Import mentions
+        </Button>
       </div>
 
       <nav className="flex gap-1 border-b border-border mb-6">
@@ -28,6 +37,8 @@ export default function BrandLayout() {
       </nav>
 
       <Outlet />
+
+      <ImportDialog open={importing} onOpenChange={setImporting} brandId={brandId} />
     </div>
   );
 }
