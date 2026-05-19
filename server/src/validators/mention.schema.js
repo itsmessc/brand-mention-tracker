@@ -27,7 +27,7 @@ export const mentionUpdateSchema = z.object({
   tags: z.array(z.string()).optional(),
 });
 
-export const mentionBulkSchema = z.array(baseMention).min(1).max(MAX_BULK_ROWS);
+export const mentionBulkSchema = z.array(z.unknown()).min(1).max(MAX_BULK_ROWS);
 
 export const mentionListQuerySchema = z.object({
   source: z.enum(SOURCES).optional(),

@@ -1,4 +1,3 @@
-import os from 'node:os';
 import path from 'node:path';
 import fs from 'node:fs';
 import { Router } from 'express';
@@ -12,11 +11,19 @@ import {
   mentionListQuerySchema,
 } from '../validators/mention.schema.js';
 
-const UPLOAD_DIR = path.join(os.tmpdir(), 'sanrove-uploads');
+const UPLOAD_DIR = path.resolve('uploads');
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 
+const storage = multer.diskStorage({
+  destination: UPLOAD_DIR,
+  filename: (_req, _file, cb) => {
+    const name = `${Date.now()}-${Math.random().toString(36).slice(2, 10)}.csv`;
+    cb(null, name);
+  },
+});
+
 const upload = multer({
-  dest: UPLOAD_DIR,
+  storage,
   limits: { fileSize: 100 * 1024 * 1024 },
 });
 
