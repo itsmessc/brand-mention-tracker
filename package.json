@@ -1,0 +1,14 @@
+{
+  "name": "sanrove-assign",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Brand mention tracker - MERN take-home",
+  "scripts": {
+    "dev": "concurrently -k -n server,client -c blue,green \"npm run dev --prefix server\" \"npm run dev --prefix client\"",
+    "seed": "npm run seed --prefix server",
+    "install:all": "npm install && npm install --prefix server && npm install --prefix client"
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.1"
+  }
+}
